@@ -5,20 +5,22 @@
  */
 namespace youtube\api;
 
-use youtube\api\activity\Activity;
-use youtube\api\activity\ActivityInterface;
-use youtube\api\channel\Channel;
-use youtube\api\channel\ChannelInterface;
-use youtube\api\i18n\I18n;
-use youtube\api\i18n\InternationalizationInterface;
-use youtube\api\playlist\Playlist;
-use youtube\api\playlist\PlaylistInterface;
-use youtube\api\search\Search;
-use youtube\api\search\SearchInterface;
-use youtube\api\subscription\Subscription;
-use youtube\api\subscription\SubscriptionInterface;
-use youtube\api\video\Video;
-use youtube\api\video\VideoInterface;
+use youtube\api\{
+    activity\Activity,
+    activity\ActivityInterface,
+    channel\Channel,
+    channel\ChannelInterface,
+    i18n\I18n,
+    i18n\InternationalizationInterface,
+    playlist\Playlist,
+    playlist\PlaylistInterface,
+    search\Search,
+    search\SearchInterface,
+    subscription\Subscription,
+    subscription\SubscriptionInterface,
+    video\Video,
+    video\VideoInterface
+};
 
 /**
  * Class Main
@@ -82,11 +84,19 @@ class Main
     private $instances = [];
 
     /**
+     * @var string $apiUrl
+     */
+    private $apiUrl = 'https://www.googleapis.com/youtube/v3';
+
+    /**
      * Main constructor.
+     * Through array $instances you can overwrite main resource instance to yours implementation, which have to
+     * implement corresponding default interface.
+     * @example MyActivity have to implement ActivityInterface and so on.
      *
      * @param array $instances
      */
-    public function __construct( array $instances )
+    public function __construct( array $instances = [] )
     {
 
         $this->setDefaultInstances();
@@ -98,30 +108,181 @@ class Main
      *
      * @param array $instances
      */
-    public function setInstances( array $instances ): void
+    public function setInstances( array $instances = [] ): void
     {
 
-        if ( !empty( $instances[ static::ACTIVITY ] ) ) {
+        if ( empty( $instances ) ) {
+            return;
+        }
+        if ( !empty( $instances[ static::ACTIVITY ] ) && $instances[ static::ACTIVITY ] instanceof ActivityInterface ) {
             $this->setInstance( static::ACTIVITY, $instances[ static::ACTIVITY ] );
         }
-        if ( !empty( $instances[ static::CHANNEL ] ) ) {
+        if ( !empty( $instances[ static::CHANNEL ] ) && $instances[ static::ACTIVITY ] instanceof ChannelInterface ) {
             $this->setInstance( static::CHANNEL, $instances[ static::CHANNEL ] );
         }
-        if ( !empty( $instances[ static::I18N ] ) ) {
+        if ( !empty( $instances[ static::I18N ] )
+             && $instances[ static::ACTIVITY ] instanceof InternationalizationInterface
+        ) {
             $this->setInstance( static::I18N, $instances[ static::I18N ] );
         }
-        if ( !empty( $instances[ static::PLAYLIST ] ) ) {
+        if ( !empty( $instances[ static::PLAYLIST ] ) && $instances[ static::ACTIVITY ] instanceof PlaylistInterface ) {
             $this->setInstance( static::PLAYLIST, $instances[ static::PLAYLIST ] );
         }
-        if ( !empty( $instances[ static::SEARCH ] ) ) {
+        if ( !empty( $instances[ static::SEARCH ] ) && $instances[ static::ACTIVITY ] instanceof SearchInterface ) {
             $this->setInstance( static::SEARCH, $instances[ static::SEARCH ] );
         }
-        if ( !empty( $instances[ static::SUBSCRIPTION ] ) ) {
+        if ( !empty( $instances[ static::SUBSCRIPTION ] )
+             && $instances[ static::ACTIVITY ] instanceof SubscriptionInterface
+        ) {
             $this->setInstance( static::SUBSCRIPTION, $instances[ static::SUBSCRIPTION ] );
         }
-        if ( !empty( $instances[ static::VIDEO ] ) ) {
+        if ( !empty( $instances[ static::VIDEO ] ) && $instances[ static::ACTIVITY ] instanceof VideoInterface ) {
             $this->setInstance( static::VIDEO, $instances[ static::VIDEO ] );
         }
+    }
+
+    /**
+     * @return \youtube\api\activity\ActivityInterface
+     */
+    public function getActivity(): ActivityInterface
+    {
+
+        return $this->activity;
+    }
+
+    /**
+     * @param \youtube\api\activity\ActivityInterface $activity
+     */
+    public function setActivity( ActivityInterface $activity )
+    {
+
+        $this->activity = $activity;
+    }
+
+    /**
+     * @return \youtube\api\channel\ChannelInterface
+     */
+    public function getChannel(): ChannelInterface
+    {
+
+        return $this->channel;
+    }
+
+    /**
+     * @param \youtube\api\channel\ChannelInterface $channel
+     */
+    public function setChannel( ChannelInterface $channel )
+    {
+
+        $this->channel = $channel;
+    }
+
+    /**
+     * @return \youtube\api\i18n\InternationalizationInterface
+     */
+    public function getI18n(): InternationalizationInterface
+    {
+
+        return $this->i18n;
+    }
+
+    /**
+     * @param \youtube\api\i18n\InternationalizationInterface $i18n
+     */
+    public function setI18n( InternationalizationInterface $i18n )
+    {
+
+        $this->i18n = $i18n;
+    }
+
+    /**
+     * @return \youtube\api\playlist\PlaylistInterface
+     */
+    public function getPlaylist(): PlaylistInterface
+    {
+
+        return $this->playlist;
+    }
+
+    /**
+     * @param \youtube\api\playlist\PlaylistInterface $playlist
+     */
+    public function setPlaylist( PlaylistInterface $playlist )
+    {
+
+        $this->playlist = $playlist;
+    }
+
+    /**
+     * @return \youtube\api\search\SearchInterface
+     */
+    public function getSearch(): SearchInterface
+    {
+
+        return $this->search;
+    }
+
+    /**
+     * @param \youtube\api\search\SearchInterface $search
+     */
+    public function setSearch( SearchInterface $search )
+    {
+
+        $this->search = $search;
+    }
+
+    /**
+     * @return \youtube\api\subscription\SubscriptionInterface
+     */
+    public function getSubscription(): SubscriptionInterface
+    {
+
+        return $this->subscription;
+    }
+
+    /**
+     * @param \youtube\api\subscription\SubscriptionInterface $subscription
+     */
+    public function setSubscription( SubscriptionInterface $subscription )
+    {
+
+        $this->subscription = $subscription;
+    }
+
+    /**
+     * @return \youtube\api\video\VideoInterface
+     */
+    public function getVideo(): VideoInterface
+    {
+
+        return $this->video;
+    }
+
+    /**
+     * @param \youtube\api\video\VideoInterface $video
+     */
+    public function setVideo( VideoInterface $video )
+    {
+
+        $this->video = $video;
+    }
+
+    /**
+     * @return string
+     */
+    public function getApiUrl(): string
+    {
+
+        return $this->apiUrl;
+    }
+
+    /**
+     * @param string $apiUrl
+     */
+    public function setApiUrl( string $apiUrl )
+    {
+
+        $this->apiUrl = $apiUrl;
     }
 
     /**
