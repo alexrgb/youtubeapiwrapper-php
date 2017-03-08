@@ -277,12 +277,25 @@ class Main
     }
 
     /**
+     *
      * @param string $apiUrl
+     *
+     * @return \youtube\api\Main
      */
-    public function setApiUrl( string $apiUrl )
+    public function setApiUrl( string $apiUrl ): self
     {
 
         $this->apiUrl = $apiUrl;
+        //change api url for all resources
+        $this->activity->setBaseUrl( $this->apiUrl );
+        $this->channel->setBaseUrl( $this->apiUrl );
+        $this->i18n->setBaseUrl( $this->apiUrl );
+        $this->playlist->setBaseUrl( $this->apiUrl );
+        $this->search->setBaseUrl( $this->apiUrl );
+        $this->subscription->setBaseUrl( $this->apiUrl );
+        $this->video->setBaseUrl( $this->apiUrl );
+
+        return $this;
     }
 
     /**
