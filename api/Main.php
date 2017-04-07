@@ -3,6 +3,7 @@
  * Created by Aleksei Kucherov <alex.rgb.kiev[at]gmail.com>
  * on 26.02.17.
  */
+
 namespace youtube\api;
 
 use youtube\api\{
@@ -142,10 +143,16 @@ class Main
     }
 
     /**
+     * @param array $configuration
+     *
      * @return \youtube\api\activity\ActivityInterface
      */
-    public function getActivity(): ActivityInterface
+    public function getActivity( array $configuration = [] ): ActivityInterface
     {
+
+        if ( empty( $this->activity ) ) {
+            $this->activity = new $this->instances[ static::ACTIVITY ]( $configuration );
+        }
 
         return $this->activity;
     }
@@ -265,24 +272,6 @@ class Main
     {
 
         $this->video = $video;
-    }
-
-    /**
-     * @return string
-     */
-    public function getApiUrl(): string
-    {
-
-        return $this->apiUrl;
-    }
-
-    /**
-     * @param string $apiUrl
-     */
-    public function setApiUrl( string $apiUrl )
-    {
-
-        $this->apiUrl = $apiUrl;
     }
 
     /**

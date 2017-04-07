@@ -12,20 +12,11 @@ namespace youtube\api\core;
  */
 abstract class BaseResource implements ResourceInterface
 {
-
-    /**
-     * @var string $resourceUrl Have to be set in child classes
-     */
-    protected $resourceUrl = '';
-
-    /**
-     * @var string $baseUrl Base api url
-     */
-    protected $baseUrl = '';
-
     /**
      * @todo Create error handler class for handle all errors
      * @var
      */
     protected $errorHandler;
+
+
 }

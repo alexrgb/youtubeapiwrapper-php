@@ -1,13 +1,18 @@
 {
-    "name": "alexrgb/youtubeapi",
-    "description": "Wrapper for youtube API on PHP",
-    "require": {
-        "google/apiclient": "^2.1"
-    },
-    "authors": [
-        {
-            "name": "Aleksei Kucherov",
-            "email": "alex.rgb.kiev@gmail.com"
-        }
-    ]
+  "name": "alexrgb/youtubeapi",
+  "description": "Wrapper for youtube API on PHP",
+  "require": {
+    "google/apiclient": "^2.1"
+  },
+  "authors": [
+    {
+      "name": "Aleksei Kucherov",
+      "email": "alex.rgb.kiev@gmail.com"
+    }
+  ],
+  "autoload": {
+    "psr-0": {
+      "youtube\\": "./"
+    }
+  }
 }

@@ -3,6 +3,7 @@
  * Created by Aleksei Kucherov <alex.rgb.kiev[at]gmail.com>
  * on 08.03.17.
  */
+
 namespace youtube\api\core;
 
 /**
@@ -13,13 +14,14 @@ namespace youtube\api\core;
 interface ResourceInterface
 {
 
-    /**
-     * @param string $apiUrl
-     */
-    public function setBaseUrl(string $apiUrl);
+    const FORMAT_JSON = 'json';
+
+    const FORMAT_ARRAY = 'array';
 
     /**
-     * @param string $resourceUrl
+     * @param string $format
+     *
+     * @return mixed
      */
-    public function setResourceUrl(string $resourceUrl);
+    public function request( string $format = self::FORMAT_ARRAY );
 }

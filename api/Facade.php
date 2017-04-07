@@ -3,6 +3,7 @@
  * Created by Aleksei Kucherov <alex.rgb.kiev[at]gmail.com>
  * on 26.02.17.
  */
+
 namespace youtube\api;
 
 /**
@@ -42,6 +43,6 @@ final class Facade
 
         $api = static::getInstance();
 
-        return $api->{$method}($arguments[1]);
+        return $api->{$method}( $arguments[ 1 ] );
     }
 }

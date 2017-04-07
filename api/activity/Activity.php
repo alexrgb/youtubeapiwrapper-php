@@ -6,6 +6,7 @@
 
 namespace youtube\api\activity;
 
+use Google_Service_YouTube;
 use youtube\api\core\BaseResource;
 use youtube\helpers\CountryCode;
 
@@ -17,11 +18,6 @@ class Activity extends BaseResource implements ActivityInterface
 {
 
     private const DATE_FORMAT = 'YYYY-MM-DDThh:mm:ss.sZ';
-
-    /**
-     * @var string
-     */
-    protected $resourceUrl = '/activities';
 
     /**
      * The part parameter specifies a comma-separated list of one or more activity
@@ -67,7 +63,7 @@ class Activity extends BaseResource implements ActivityInterface
      *
      * @var int $maxResults
      */
-    protected $maxResults = 5;
+    protected $maxResults;
 
     /**
      * The pageToken parameter identifies a specific page
@@ -113,29 +109,20 @@ class Activity extends BaseResource implements ActivityInterface
     protected $regionCode;
 
     /**
-     * @param string $apiUrl
-     *
-     * @return \youtube\api\activity\Activity
+     * @var Google_Service_YouTube $service
      */
-    public function setBaseUrl( string $apiUrl ): self
-    {
-
-        $this->baseUrl = $apiUrl;
-
-        return $this;
-    }
+    private $service;
 
     /**
-     * @param string $resourceUrl
+     * Activity constructor.
      *
-     * @return \youtube\api\activity\Activity
+     * @param array $configuration
      */
-    public function setResourceUrl( string $resourceUrl ): self
+    public function __construct( array $configuration )
     {
 
-        $this->resourceUrl = $resourceUrl;
-
-        return $this;
+        $this->setService( $configuration )
+             ->setConfiguration( $configuration );
     }
 
     /**
@@ -291,7 +278,8 @@ class Activity extends BaseResource implements ActivityInterface
     public function setPublishedAfter( string $datetime ): self
     {
 
-        $this->publishedAfter = new \DateTime( $datetime );
+        $date = new \DateTime( $datetime );
+        $this->publishedAfter = $date->format( static::DATE_FORMAT );
 
         return $this;
     }
@@ -341,7 +329,6 @@ class Activity extends BaseResource implements ActivityInterface
     {
 
         $code = CountryCode::getAlpha2Code( $regionCode );
-
         $this->regionCode = $code;
 
         return $this;
@@ -352,6 +339,7 @@ class Activity extends BaseResource implements ActivityInterface
      */
     public function getRegionCode(): string
     {
+
         return $this->regionCode;
     }
 
@@ -369,45 +357,30 @@ class Activity extends BaseResource implements ActivityInterface
      */
     public function setConfiguration( array $configuration ): self
     {
-        if (!empty($configuration['baseUrl'])) {
-            $this->setBaseUrl($configuration['baseUrl']);
+
+        if ( !empty( $configuration[ 'part' ] ) ) {
+            $this->setPart( $configuration[ 'part' ] );
         }
-
-        if (!empty($configuration['resourceUrl'])) {
-            $this->setResourceUrl($configuration['resourceUrl']);
-        }
-
-        if (!empty($configuration['part'])) {
-            $this->setPart($configuration['part']);
-        }
-
-        if (!empty($configuration['filter'])) {
-            $filter = key($configuration['filter']);
-
-            if (in_array($filter, $this->getFilterNames(), true)) {
-
-                $this->{'set'. ucfirst($filter)}($configuration['filter']);
+        if ( !empty( $configuration[ 'filter' ] ) ) {
+            $filter = key( $configuration[ 'filter' ] );
+            if ( in_array( $filter, $this->getFilterNames(), true ) ) {
+                $this->{'set' . ucfirst( $filter )}( $configuration[ 'filter' ] );
             }
         }
-
-        if(!empty($configuration['maxResults'])) {
-            $this->setMaxResults($configuration['maxResults']);
+        if ( !empty( $configuration[ 'maxResults' ] ) ) {
+            $this->setMaxResults( $configuration[ 'maxResults' ] );
         }
-
-        if(!empty($configuration['pageToken'])) {
-            $this->setPageToken($configuration['pageToken']);
+        if ( !empty( $configuration[ 'pageToken' ] ) ) {
+            $this->setPageToken( $configuration[ 'pageToken' ] );
         }
-
-        if(!empty($configuration['publishedAfter'])) {
-            $this->setPublishedAfter($configuration['publishedAfter']);
+        if ( !empty( $configuration[ 'publishedAfter' ] ) ) {
+            $this->setPublishedAfter( $configuration[ 'publishedAfter' ] );
         }
-
-        if(!empty($configuration['publishedBefore'])) {
-            $this->setPublishedBefore($configuration['publishedBefore']);
+        if ( !empty( $configuration[ 'publishedBefore' ] ) ) {
+            $this->setPublishedBefore( $configuration[ 'publishedBefore' ] );
         }
-
-        if(!empty($configuration['regionCode'])) {
-            $this->setRegionCode($configuration['regionCode']);
+        if ( !empty( $configuration[ 'regionCode' ] ) ) {
+            $this->setRegionCode( $configuration[ 'regionCode' ] );
         }
 
         return $this;
@@ -419,17 +392,59 @@ class Activity extends BaseResource implements ActivityInterface
      */
     public function getConfiguration(): array
     {
+
         return [
-            'baseUrl' => $this->baseUrl,
-            'resourceUrl' => $this->resourceUrl,
-            'part' => $this->part,
-            'filter' => $this->getFilter(),
-            'maxResults' => $this->maxResults,
-            'pageToken' => $this->pageToken,
-            'publishedAfter' => $this->publishedAfter,
+            'part'            => $this->part,
+            'filter'          => $this->getFilter(),
+            'maxResults'      => $this->maxResults,
+            'pageToken'       => $this->pageToken,
+            'publishedAfter'  => $this->publishedAfter,
             'publishedBefore' => $this->publishedBefore,
-            'regionCode' => $this->regionCode,
+            'regionCode'      => $this->regionCode,
         ];
+    }
+
+    public function getOptionalParams(): array
+    {
+
+        $result = [];
+        $filter = $this->getFilter();
+        if ( !empty( $filter ) ) {
+            $result[ $filter[ 'name' ] ] = $filter[ 'value' ];
+        }
+        if ( !empty( $this->maxResults ) ) {
+            $result[ 'maxResults' ] = (int)$this->maxResults;
+        }
+        if ( !empty( $this->pageToken ) ) {
+            $result[ 'pageToken' ] = (string)$this->pageToken;
+        }
+        if ( !empty( $this->publishedAfter ) ) {
+            $result[ 'publishedAfter' ] = (string)$this->publishedAfter;
+        }
+        if ( !empty( $this->publishedBefore ) ) {
+            $result[ 'publishedBefore' ] = (string)$this->publishedBefore;
+        }
+        if ( !empty( $this->regionCode ) ) {
+            $result[ 'regionCode' ] = (string)$this->regionCode;
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param string $format
+     *
+     * @return array | string based of set format
+     */
+    public function request( string $format = self::FORMAT_ARRAY )
+    {
+
+        $result = $this->service->activities->listActivities( $this->part, $this->getOptionalParams() );
+        if ( $format === static::FORMAT_JSON ) {
+            $result = (string)json_encode( $result );
+        }
+
+        return $result;
     }
 
     /**
@@ -452,8 +467,26 @@ class Activity extends BaseResource implements ActivityInterface
      */
     private function getFilterNames(): array
     {
+
         return [
-            'channelId', 'home', 'mine'
+            'channelId', 'home', 'mine',
         ];
+    }
+
+    /**
+     * @param array $configuration
+     *
+     * @return \youtube\api\activity\Activity
+     */
+    private function setService( array $configuration ): self
+    {
+
+        if ( empty( $configuration[ 'service' ] )
+             || !( $configuration[ 'service' ] instanceof Google_Service_YouTube )
+        ) {
+        }
+        $this->service = $configuration[ 'service' ];
+
+        return $this;
     }
 }
