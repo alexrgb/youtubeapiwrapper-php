@@ -7,6 +7,7 @@
 namespace youtube\api\activity;
 
 use Google_Service_YouTube;
+use Google_Service_YouTube_Activity;
 use youtube\api\core\BaseResource;
 use youtube\helpers\CountryCode;
 
@@ -436,10 +437,27 @@ class Activity extends BaseResource implements ActivityInterface
      *
      * @return array | string based of set format
      */
-    public function request( string $format = self::FORMAT_ARRAY )
+    public function list( string $format = self::FORMAT_ARRAY )
     {
 
         $result = $this->service->activities->listActivities( $this->part, $this->getOptionalParams() );
+        if ( $format === static::FORMAT_JSON ) {
+            $result = (string)json_encode( $result );
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param \Google_Service_YouTube_Activity $postBody
+     * @param string $format
+     *
+     * @return \Google_Service_YouTube_Activity|string
+     */
+    public function insert( Google_Service_YouTube_Activity $postBody, string $format = self::FORMAT_ARRAY )
+    {
+
+        $result = $this->service->activities->insert( $this->part, $postBody, $this->getOptionalParams() );
         if ( $format === static::FORMAT_JSON ) {
             $result = (string)json_encode( $result );
         }
